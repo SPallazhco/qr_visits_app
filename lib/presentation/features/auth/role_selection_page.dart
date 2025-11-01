@@ -28,10 +28,12 @@ class RoleSelectionPage extends ConsumerWidget {
                     : 'Verás todas las visitas',
               ),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                ref.read(userRoleProvider.notifier).select(role);
-                // Navegamos a la lista de visitas usando GoRouter
-                context.go('/visits');
+              onTap: () async {
+                await ref.read(userRoleProvider.notifier).select(role);
+                // Ir directo a visitas
+                if (context.mounted) {
+                  context.go('/visits');
+                }
               },
             ),
           );

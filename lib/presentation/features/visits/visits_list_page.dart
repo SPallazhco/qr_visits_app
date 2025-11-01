@@ -11,11 +11,9 @@ class VisitsListPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final role = ref.watch(userRoleProvider);
 
-    // Si no hay rol, redirigimos a selección de rol
     if (role == null) {
-      // Usamos Future.microtask para no romper el build
       Future.microtask(() {
-        context.go('/role');
+        if (context.mounted) context.go('/role');
       });
       return const SizedBox.shrink();
     }
@@ -30,10 +28,9 @@ class VisitsListPage extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Cambiar rol',
-            onPressed: () {
-              // Limpiamos rol y volvemos a selección
-              ref.read(userRoleProvider.notifier).clear();
-              context.go('/role');
+            onPressed: () async {
+              await ref.read(userRoleProvider.notifier).clear();
+              if (context.mounted) context.go('/role');
             },
             icon: const Icon(Icons.switch_account),
           ),
@@ -44,14 +41,13 @@ class VisitsListPage extends ConsumerWidget {
           padding: const EdgeInsets.all(24),
           child: Text(
             'Aquí verás el listado de visitas (${role.label}).\n'
-            'Hoy solo es esqueleto; mañana añadimos persistencia y escáner.',
+            'Hoy: solo esqueleto. Próximo paso: entidad Visit + repo local.',
             textAlign: TextAlign.center,
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Placeholder: más adelante abrirá scanner / crear visita
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Aquí abrirá el escáner (próximo paso).'),
