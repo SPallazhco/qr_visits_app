@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../../data/repositories/providers.dart';
 import '../../features/visits/visits_controller.dart';
@@ -44,16 +45,50 @@ class _CreateVisitPageState extends ConsumerState<CreateVisitPage> {
     final code = _codeCtrl.text.trim();
     if (code.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa un código para continuar.')),
+        const SnackBar(content: Text('Ingresa o escanea un código.')),
       );
       return;
     }
-    await ref.read(visitsControllerProvider.notifier).addVisitWithCode(code);
+
+    double? lat;
+    double? lng;
+
+    // Intentar obtener ubicación (sin bloquear el guardado si falla)
+    try {
+      // Verificar servicio de ubicación
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (serviceEnabled) {
+        // Permisos
+        LocationPermission perm = await Geolocator.checkPermission();
+        if (perm == LocationPermission.denied) {
+          perm = await Geolocator.requestPermission();
+        }
+        if (perm == LocationPermission.always ||
+            perm == LocationPermission.whileInUse) {
+          final pos = await Geolocator.getCurrentPosition(
+            timeLimit: const Duration(seconds: 5),
+          );
+          lat = pos.latitude;
+          lng = pos.longitude;
+        }
+      }
+    } catch (_) {
+      // Ignoramos y guardamos sin coordenadas
+    }
+
+    await ref
+        .read(visitsControllerProvider.notifier)
+        .addVisitWithCode(code, lat: lat, lng: lng);
+
     if (!mounted) return;
     context.pop(); // volver a la lista
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Visita registrada.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Visita registrada${lat != null ? ' con ubicación' : ''}.',
+        ),
+      ),
+    );
   }
 
   @override
@@ -114,19 +149,32 @@ class _CreateVisitPageState extends ConsumerState<CreateVisitPage> {
             label: const Text('Guardar visita'),
           ),
           const SizedBox(height: 8),
+          FilledButton.icon(
+            onPressed: () async {
+              // Ir a escanear y traer el resultado
+              final scanned = await context.push<String>('/scan');
+              if (scanned != null && mounted) {
+                setState(() {
+                  _codeCtrl.text = scanned;
+                  _equipment = null;
+                });
+                await _lookup();
+              }
+            },
+            icon: const Icon(Icons.qr_code_scanner),
+            label: const Text('Escanear código'),
+          ),
+          const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () {
-              // Autocompletar un código válido del mock para rapidez
+              // Autocompletar uno rápido del mock
               setState(() {
-                _codeCtrl.text =
-                    'EQP-10${[1, 2, 3]
-                      ..shuffle()
-                      ..first}';
+                _codeCtrl.text = 'EQP-101';
                 _equipment = null;
               });
             },
-            icon: const Icon(Icons.qr_code_scanner),
-            label: const Text('Simular código'),
+            icon: const Icon(Icons.text_snippet),
+            label: const Text('Usar EQP-101'),
           ),
           const SizedBox(height: 8),
           Text(

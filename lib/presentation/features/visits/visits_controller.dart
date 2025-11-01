@@ -31,7 +31,7 @@ class VisitsController extends AutoDisposeAsyncNotifier<List<Visit>> {
     }
   }
 
-  Future<void> addVisitWithCode(String code) async {
+  Future<void> addVisitWithCode(String code, {double? lat, double? lng}) async {
     if (code.trim().isEmpty) return;
     final now = DateTime.now();
     final visit = Visit(
@@ -39,6 +39,8 @@ class VisitsController extends AutoDisposeAsyncNotifier<List<Visit>> {
       code: code.trim(),
       technicianId: kCurrentTechnicianId,
       timestamp: now,
+      lat: lat,
+      lng: lng,
     );
     await _repo.add(visit);
     await refresh();
