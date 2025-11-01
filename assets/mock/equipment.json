@@ -1,0 +1,5 @@
+[
+    { "code": "EQP-101", "name": "Bomba de agua N°1", "area": "Campo A", "status": "Operativa" },
+    { "code": "EQP-202", "name": "Generador N°2", "area": "Planta",  "status": "Mantenimiento" },
+    { "code": "EQP-303", "name": "Cinta transportadora", "area": "Empaque", "status": "Operativa" }
+  ]

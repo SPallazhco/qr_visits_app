@@ -85,16 +85,11 @@ class VisitsListPage extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await ref.read(visitsControllerProvider.notifier).addQuickVisit();
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Visita simulada agregada.')),
-            );
-          }
+        onPressed: () {
+          context.push('/visits/new');
         },
         label: const Text('Registrar visita'),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.qr_code_scanner),
       ),
     );
   }

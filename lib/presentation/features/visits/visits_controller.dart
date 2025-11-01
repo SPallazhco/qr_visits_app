@@ -31,15 +31,21 @@ class VisitsController extends AutoDisposeAsyncNotifier<List<Visit>> {
     }
   }
 
+  Future<void> addVisitWithCode(String code) async {
+    if (code.trim().isEmpty) return;
+    final now = DateTime.now();
+    final visit = Visit(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      code: code.trim(),
+      technicianId: kCurrentTechnicianId,
+      timestamp: now,
+    );
+    await _repo.add(visit);
+    await refresh();
+  }
+
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => build());
-  }
-
-  Future<void> addQuickVisit() async {
-    // Sólo para probar la lista; más adelante esto lo hará el escáner
-    final repo = _repo;
-    //await repo.addQuickVisit();
-    await refresh();
   }
 }
