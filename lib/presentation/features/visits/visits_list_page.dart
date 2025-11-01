@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/role_controller.dart';
 import '../../../domain/entities/user_role.dart';
+import 'visits_controller.dart';
+import 'widgets/visit_tile.dart';
 
 class VisitsListPage extends ConsumerWidget {
   const VisitsListPage({super.key});
@@ -21,6 +23,7 @@ class VisitsListPage extends ConsumerWidget {
     final title = role == UserRole.technician
         ? 'Mis visitas'
         : 'Visitas (todos)';
+    final visitsAsync = ref.watch(visitsControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -36,26 +39,62 @@ class VisitsListPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Aquí verás el listado de visitas (${role.label}).\n'
-            'Hoy: solo esqueleto. Próximo paso: entidad Visit + repo local.',
-            textAlign: TextAlign.center,
+      body: visitsAsync.when(
+        data: (visits) {
+          if (visits.isEmpty) {
+            return RefreshIndicator(
+              onRefresh: () =>
+                  ref.read(visitsControllerProvider.notifier).refresh(),
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 120),
+                  Center(child: Text('No hay visitas registradas.')),
+                  SizedBox(height: 12),
+                  Center(
+                    child: Text('Pulsa “Registrar visita” para agregar una.'),
+                  ),
+                ],
+              ),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: () =>
+                ref.read(visitsControllerProvider.notifier).refresh(),
+            child: ListView.separated(
+              padding: const EdgeInsets.only(top: 8, bottom: 88),
+              itemCount: visits.length,
+              separatorBuilder: (_, __) => const Divider(height: 0),
+              itemBuilder: (context, index) => VisitTile(visit: visits[index]),
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, st) => RefreshIndicator(
+          onRefresh: () =>
+              ref.read(visitsControllerProvider.notifier).refresh(),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              const SizedBox(height: 120),
+              Center(child: Text('Ocurrió un error: $err')),
+              const SizedBox(height: 12),
+              const Center(child: Text('Desliza hacia abajo para reintentar.')),
+            ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Aquí abrirá el escáner (próximo paso).'),
-            ),
-          );
+        onPressed: () async {
+          await ref.read(visitsControllerProvider.notifier).addQuickVisit();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Visita simulada agregada.')),
+            );
+          }
         },
         label: const Text('Registrar visita'),
-        icon: const Icon(Icons.qr_code_scanner),
+        icon: const Icon(Icons.add),
       ),
     );
   }
