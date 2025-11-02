@@ -30,4 +30,12 @@ iOS – Info.plist keys
 <string>Se requiere la ubicación para registrar la visita con coordenadas.</string>
 <key>CFBundleDevelopmentRegion</key>
 
+  ¿Cómo Ver los Datos de Prueba?
+
+Cambiar temporalmente a InMemory (solo para testing)
+
+// En providers.dart:20-23
+final visitRepositoryProvider = Provider<VisitRepository>((ref) {
+    return InMemoryVisitRepository();  // ← Datos en memoria con seeds
+});
 

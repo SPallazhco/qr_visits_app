@@ -1,4 +1,3 @@
-import 'dart:math';
 import '../../domain/entities/visit.dart';
 import '../../domain/repositories/visit_repository.dart';
 import '../datasources/local/app_database.dart';
@@ -33,18 +32,5 @@ class DriftVisitRepository implements VisitRepository {
   @override
   Future<void> clearAll() async {
     await _dao.clearAll();
-  }
-
-  // Utilidad opcional (aún útil en pruebas manuales)
-  Future<Visit> addQuickVisit(String technicianId) async {
-    final code = 'EQP-${100 + Random().nextInt(900)}';
-    final v = Visit(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      code: code,
-      technicianId: technicianId,
-      timestamp: DateTime.now(),
-    );
-    await _dao.insertVisit(v.toCompanion());
-    return v;
   }
 }

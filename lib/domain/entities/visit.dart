@@ -1,6 +1,6 @@
 class Visit {
   final String id;
-  final String code; // Código escaneado (por ahora simulado)
+  final String code; // Código escaneado
   final String technicianId; // Dueño de la visita (para filtrar por rol)
   final DateTime timestamp; // Fecha/hora de registro
   final double? lat; // Más adelante con geoloc

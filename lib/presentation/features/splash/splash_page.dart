@@ -25,7 +25,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
     // Decide ruta
     final role = ref.read(userRoleProvider);
-    // Pequeña demora para mostrar el splash (opcional)
+    // Pequeña demora para mostrar el splash
     await Future.delayed(const Duration(milliseconds: 400));
 
     if (!mounted) return;

@@ -53,7 +53,7 @@ class _CreateVisitPageState extends ConsumerState<CreateVisitPage> {
     double? lat;
     double? lng;
 
-    // Intentar obtener ubicación (sin bloquear el guardado si falla)
+    // Intentar obtener ubicación sin bloquear el guardado si falla
     try {
       // Verificar servicio de ubicación
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -81,7 +81,6 @@ class _CreateVisitPageState extends ConsumerState<CreateVisitPage> {
         .addVisitWithCode(code, lat: lat, lng: lng);
 
     if (!mounted) return;
-    // Usar go en lugar de pop para manejar casos de deep linking
     context.go('/visits');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -94,7 +93,6 @@ class _CreateVisitPageState extends ConsumerState<CreateVisitPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Si no hay rol (deep link, etc.), reenvía a selección
     final role = ref.watch(userRoleProvider);
     if (role == null) {
       Future.microtask(() {
