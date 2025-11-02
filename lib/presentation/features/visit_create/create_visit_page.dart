@@ -81,7 +81,8 @@ class _CreateVisitPageState extends ConsumerState<CreateVisitPage> {
         .addVisitWithCode(code, lat: lat, lng: lng);
 
     if (!mounted) return;
-    context.pop(); // volver a la lista
+    // Usar go en lugar de pop para manejar casos de deep linking
+    context.go('/visits');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -166,12 +167,14 @@ class _CreateVisitPageState extends ConsumerState<CreateVisitPage> {
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
-            onPressed: () {
+            onPressed: () async {
               // Autocompletar uno rápido del mock
               setState(() {
                 _codeCtrl.text = 'EQP-101';
                 _equipment = null;
               });
+              // Buscar automáticamente el equipo
+              await _lookup();
             },
             icon: const Icon(Icons.text_snippet),
             label: const Text('Usar EQP-101'),

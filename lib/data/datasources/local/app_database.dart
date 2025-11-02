@@ -1,4 +1,3 @@
-// lib/data/datasources/local/app_database.dart
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -23,6 +22,8 @@ class DbVisits extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  AppDatabase.memory() : super(NativeDatabase.memory());
+
   @override
   int get schemaVersion => 1;
 }
@@ -36,10 +37,10 @@ LazyDatabase _openConnection() {
   });
 }
 
-// ------------ DAO (consultas tipadas) ------------
+// DAO
 @DriftAccessor(tables: [DbVisits])
 class VisitDao extends DatabaseAccessor<AppDatabase> with _$VisitDaoMixin {
-  VisitDao(AppDatabase db) : super(db);
+  VisitDao(super.db);
 
   Future<List<DbVisit>> listAllDesc() {
     return (select(
