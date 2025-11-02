@@ -43,7 +43,7 @@ QR Visits App es una aplicación móvil robusta diseñada para el registro efici
 
 1. **Clonar el repositorio**
    ```bash
-   git clone https://github.com/tu-usuario/qr-visits-app.git
+   git clone https://github.com/SPallazhco/qr-visits-app.git
    cd qr-visits-app
    ```
 
