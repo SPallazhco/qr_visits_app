@@ -30,7 +30,34 @@ iOS – Info.plist keys
 <string>Se requiere la ubicación para registrar la visita con coordenadas.</string>
 <key>CFBundleDevelopmentRegion</key>
 
-  ¿Cómo Ver los Datos de Prueba?
+Cambiar en el Podfile de la ruta: "qr_visits_app/ios/Podfile" la seccion "post_install"
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+
+    # Habilitar permisos usados por permission_handler
+    target.build_configurations.each do |config|
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        'PERMISSION_CAMERA=1',
+        'PERMISSION_LOCATION_WHENINUSE=1',
+      ]
+    end
+  end
+end
+
+Comandos despues de cambiar podfile:
+cd ios
+pod deintegrate
+pod install
+cd ..
+flutter clean
+flutter pub get
+flutter run
+
+
+¿Cómo Ver los Datos de Prueba?
 
 Cambiar temporalmente a InMemory (solo para testing)
 
